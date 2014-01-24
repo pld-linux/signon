@@ -19,6 +19,7 @@ BuildRequires:	QtSql-devel >= 4
 BuildRequires:	QtXml-devel >= 4
 BuildRequires:	cryptsetup-devel
 BuildRequires:	doxygen
+BuildRequires:	libproxy-devel
 BuildRequires:	pkgconfig
 BuildRequires:	qt4-build >= 4
 BuildRequires:	qt4-qmake >= 4
@@ -50,6 +51,8 @@ Requires:	%{name}-libs = %{version}-%{release}
 Requires:	QtCore-devel >= 4
 Requires:	QtDBus-devel >= 4
 Requires:	QtSql-devel >= 4
+# for signon-plugins.pc
+Requires:	libsignon-qt-devel = %{version}-%{release}
 
 %description devel
 Development files for Single Sign On libraries.
