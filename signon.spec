@@ -2,13 +2,13 @@
 Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
 Name:		signon
-Version:	8.55
+Version:	8.56
 Release:	1
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: http://code.google.com/p/accounts-sso/downloads/list
 Source0:	http://accounts-sso.googlecode.com/files/%{name}-%{version}.tar.bz2
-# Source0-md5:	4e6092c2981d55442200cbd9263d49d2
+# Source0-md5:	85ac10ab581d84ec2344a42349bc693b
 Patch0:		%{name}-cryptsetup.patch
 URL:		http://code.google.com/p/accounts-sso/
 BuildRequires:	QtCore-devel >= 4
@@ -209,6 +209,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libsignon-qt.so
 %{_includedir}/signon-qt
 %{_pkgconfigdir}/libsignon-qt.pc
+%{_libdir}/cmake/SignOnQt
 
 %files -n libsignon-qt-static
 %defattr(644,root,root,755)
