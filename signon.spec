@@ -1,4 +1,7 @@
-# TODO: qt5 version of bindings as libsignon-qt5-*
+#
+# Conditional build:
+%bcond_without	qt5	# libsignon-qt5 binding
+#
 Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
 Name:		signon
@@ -11,6 +14,10 @@ Source0:	http://accounts-sso.googlecode.com/files/%{name}-%{version}.tar.bz2
 # Source0-md5:	85ac10ab581d84ec2344a42349bc693b
 Patch0:		%{name}-cryptsetup.patch
 URL:		http://code.google.com/p/accounts-sso/
+%if %{with qt5}
+BuildRequires:	Qt5Core-devel >= 5
+BuildRequires:	Qt5DBus-devel >= 5
+%endif
 BuildRequires:	QtCore-devel >= 4
 BuildRequires:	QtDBus-devel >= 4
 BuildRequires:	QtGui-devel >= 4
@@ -118,23 +125,85 @@ API documentation for Single Sign On daemon Qt client library.
 %description -n libsignon-qt-apidocs -l pl.UTF-8
 Dokumentacja API biblioteki klienckiej Qt demona Single Sign On.
 
+%package -n libsignon-qt5
+Summary:	Client library for the Single Sign On daemon - Qt 5 bindings
+Summary(pl.UTF-8):	Biblioteka kliencka demona Single Sign On - wiązania Qt 5
+Group:		Libraries
+
+%description -n libsignon-qt5
+Client library for the Single Sign On daemon - Qt 5 bindings.
+
+%description -n libsignon-qt5 -l pl.UTF-8
+Biblioteka kliencka demona Single Sign On - wiązania Qt 5.
+
+%package -n libsignon-qt5-devel
+Summary:	Header files for Single Sign On daemon Qt 5 client library
+Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki klienckiej Qt 5 demona Single Sign On
+Group:		Development/Libraries
+Requires:	Qt5Core-devel >= 5
+Requires:	libsignon-qt5 = %{version}-%{release}
+
+%description -n libsignon-qt5-devel
+Header files for Single Sign On daemon Qt 5 client library.
+
+%description -n libsignon-qt5-devel -l pl.UTF-8
+Pliki nagłówkowe biblioteki klienckiej Qt 5 demona Single Sign On.
+
+%package -n libsignon-qt5-static
+Summary:	Static libsignon-qt5 library
+Summary(pl.UTF-8):	Statyczna biblioteka libsignon-qt5
+Group:		Development/Libraries
+Requires:	libsignon-qt5-devel = %{version}-%{release}
+
+%description -n libsignon-qt5-static
+Static libsignon-qt5 library.
+
+%description -n libsignon-qt5-static -l pl.UTF-8
+Statyczna biblioteka libsignon-qt5.
+
 %prep
 %setup -q
 %patch0 -p1
 
 %build
-qmake-qt4 signon.pro \
+install -d build-qt4
+cd build-qt4
+qmake-qt4 ../signon.pro \
 	CONFIG+=cryptsetup \
 	QMAKE_CXX="%{__cxx}" \
 	QMAKE_CXXFLAGS_RELEASE="%{rpmcxxflags}" \
 	QMAKE_LFLAGS_RELEASE="%{rpmldflags}"
-	
+
 %{__make}
+cd ..
+
+%if %{with qt5}
+install -d build-qt5/lib/SignOn
+cd build-qt5/lib/SignOn
+qmake-qt5 ../../../lib/SignOn/SignOn.pro \
+	CONFIG+=cryptsetup \
+	QMAKE_CXX="%{__cxx}" \
+	QMAKE_CXXFLAGS_RELEASE="%{rpmcxxflags}" \
+	QMAKE_LFLAGS_RELEASE="%{rpmldflags}"
+
+%{__make}
+cd ..
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} install \
+%if %{with qt5}
+%{__make} -C build-qt5/lib/SignOn install \
+	INSTALL_ROOT=$RPM_BUILD_ROOT
+
+# separate from qt4 version
+%{__mv} $RPM_BUILD_ROOT%{_libdir}/cmake/{SignOnQt,SignOnQt5}
+%{__mv} $RPM_BUILD_ROOT%{_libdir}/cmake/SignOnQt5/{SignOnQt,SignOnQt5}Config.cmake
+%{__mv} $RPM_BUILD_ROOT%{_libdir}/cmake/SignOnQt5/{SignOnQt,SignOnQt5}ConfigVersion.cmake
+%endif
+
+%{__make} -C build-qt4 install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 
 # useless symlinks
@@ -155,6 +224,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %post	-n libsignon-qt -p /sbin/ldconfig
 %postun	-n libsignon-qt -p /sbin/ldconfig
+
+%post	-n libsignon-qt5 -p /sbin/ldconfig
+%postun	-n libsignon-qt5 -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
@@ -218,3 +290,21 @@ rm -rf $RPM_BUILD_ROOT
 %files -n libsignon-qt-apidocs
 %defattr(644,root,root,755)
 %{_docdir}/libsignon-qt-apidocs-%{version}
+
+%if %{with qt5}
+%files -n libsignon-qt5
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libsignon-qt5.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libsignon-qt5.so.1
+
+%files -n libsignon-qt5-devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libsignon-qt5.so
+%{_includedir}/signon-qt5
+%{_pkgconfigdir}/libsignon-qt5.pc
+%{_libdir}/cmake/SignOnQt5
+
+%files -n libsignon-qt5-static
+%defattr(644,root,root,755)
+%{_libdir}/libsignon-qt5.a
+%endif
