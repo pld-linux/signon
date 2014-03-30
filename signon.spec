@@ -1,12 +1,12 @@
 #
 # Conditional build:
 %bcond_without	qt5	# libsignon-qt5 binding
-#
+
 Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
 Name:		signon
 Version:	8.56
-Release:	1
+Release:	2
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: http://code.google.com/p/accounts-sso/downloads/list
@@ -71,6 +71,9 @@ Pliki programistyczne bibliotek Single Sign On.
 Summary:	API documentation for Single Sign On daemon and libraries
 Summary(pl.UTF-8):	Dokumentacja API demona i bibliotek Single Sign On
 Group:		Documentation
+%if "%{_rpmversion}" >= "5"
+BuildArch:	noarch
+%endif
 
 %description apidocs
 API documentation for Single Sign On daemon and libraries.
