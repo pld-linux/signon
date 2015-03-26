@@ -6,23 +6,27 @@ Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
 Name:		signon
 Version:	8.56
-Release:	2
+Release:	3
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: http://code.google.com/p/accounts-sso/downloads/list
 Source0:	http://accounts-sso.googlecode.com/files/%{name}-%{version}.tar.bz2
 # Source0-md5:	85ac10ab581d84ec2344a42349bc693b
 Patch0:		%{name}-cryptsetup.patch
+Patch1:		%{name}-link.patch
 URL:		http://code.google.com/p/accounts-sso/
 %if %{with qt5}
 BuildRequires:	Qt5Core-devel >= 5
 BuildRequires:	Qt5DBus-devel >= 5
+BuildRequires:	qt5-build >= 5
+BuildRequires:	qt5-qmake >= 5
 %endif
 BuildRequires:	QtCore-devel >= 4
 BuildRequires:	QtDBus-devel >= 4
 BuildRequires:	QtGui-devel >= 4
 BuildRequires:	QtNetwork-devel >= 4
 BuildRequires:	QtSql-devel >= 4
+BuildRequires:	QtTest-devel >= 4
 BuildRequires:	QtXml-devel >= 4
 BuildRequires:	cryptsetup-devel
 BuildRequires:	doxygen
@@ -167,12 +171,15 @@ Statyczna biblioteka libsignon-qt5.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 install -d build-qt4
 cd build-qt4
 qmake-qt4 ../signon.pro \
 	CONFIG+=cryptsetup \
+	BUILD_DIR="build-qt4" \
+	LIBDIR="%{_libdir}" \
 	QMAKE_CXX="%{__cxx}" \
 	QMAKE_CXXFLAGS_RELEASE="%{rpmcxxflags}" \
 	QMAKE_LFLAGS_RELEASE="%{rpmldflags}"
@@ -185,6 +192,8 @@ install -d build-qt5/lib/SignOn
 cd build-qt5/lib/SignOn
 qmake-qt5 ../../../lib/SignOn/SignOn.pro \
 	CONFIG+=cryptsetup \
+	BUILD_DIR="build-qt5" \
+	LIBDIR="%{_libdir}" \
 	QMAKE_CXX="%{__cxx}" \
 	QMAKE_CXXFLAGS_RELEASE="%{rpmcxxflags}" \
 	QMAKE_LFLAGS_RELEASE="%{rpmldflags}"
