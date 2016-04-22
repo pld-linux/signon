@@ -1,6 +1,6 @@
 #
 # Conditional build:
-%bcond_without	qt5	# libsignon-qt5 binding
+%bcond_without	qt4	# qt4-based libsignon-qt binding
 
 Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
@@ -14,25 +14,25 @@ Source0:	https://gitlab.com/accounts-sso/signond/repository/archive.tar.gz?ref=V
 # Source0-md5:	90c29b033fe78a124ecca044e28a789b
 Patch0:		%{name}-cryptsetup.patch
 URL:		https://gitlab.com/accounts-sso/signond
-%if %{with qt5}
-BuildRequires:	Qt5Core-devel >= 5
-BuildRequires:	Qt5DBus-devel >= 5
-BuildRequires:	qt5-build >= 5
-BuildRequires:	qt5-qmake >= 5
-%endif
+%if %{with qt4}
 BuildRequires:	QtCore-devel >= 4
 BuildRequires:	QtDBus-devel >= 4
-BuildRequires:	QtGui-devel >= 4
-BuildRequires:	QtNetwork-devel >= 4
-BuildRequires:	QtSql-devel >= 4
-BuildRequires:	QtTest-devel >= 4
-BuildRequires:	QtXml-devel >= 4
+BuildRequires:	qt4-build >= 4
+BuildRequires:	qt4-qmake >= 4
+%endif
+BuildRequires:	Qt5Core-devel >= 5
+BuildRequires:	Qt5DBus-devel >= 5
+BuildRequires:	Qt5Gui-devel >= 5
+BuildRequires:	Qt5Network-devel >= 5
+BuildRequires:	Qt5Sql-devel >= 5
+BuildRequires:	Qt5Test-devel >= 5
+BuildRequires:	Qt5Xml-devel >= 5
 BuildRequires:	cryptsetup-devel
 BuildRequires:	doxygen
 BuildRequires:	libproxy-devel
 BuildRequires:	pkgconfig
-BuildRequires:	qt4-build >= 4
-BuildRequires:	qt4-qmake >= 4
+BuildRequires:	qt5-build >= 5
+BuildRequires:	qt5-qmake >= 5
 Requires:	%{name}-libs = %{version}-%{release}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -58,9 +58,9 @@ Summary:	Development files for Single Sign On libraries
 Summary(pl.UTF-8):	Pliki programistyczne bibliotek Single Sign On
 Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
-Requires:	QtCore-devel >= 4
-Requires:	QtDBus-devel >= 4
-Requires:	QtSql-devel >= 4
+Requires:	Qt5Core-devel >= 5
+Requires:	Qt5DBus-devel >= 5
+Requires:	Qt5Sql-devel >= 5
 # for signon-plugins.pc
 Requires:	libsignon-qt-devel = %{version}-%{release}
 
@@ -172,11 +172,11 @@ Statyczna biblioteka libsignon-qt5.
 %patch0 -p1
 
 %build
-install -d build-qt4
-cd build-qt4
-qmake-qt4 ../signon.pro \
+install -d build-qt5
+cd build-qt5
+qmake-qt5 ../signon.pro \
 	CONFIG+=cryptsetup \
-	BUILD_DIR="build-qt4" \
+	BUILD_DIR="build-qt5" \
 	LIBDIR="%{_libdir}" \
 	QMAKE_CXX="%{__cxx}" \
 	QMAKE_CXXFLAGS_RELEASE="%{rpmcxxflags}" \
@@ -185,12 +185,12 @@ qmake-qt4 ../signon.pro \
 %{__make}
 cd ..
 
-%if %{with qt5}
-install -d build-qt5/lib/SignOn
-cd build-qt5/lib/SignOn
-qmake-qt5 ../../../lib/SignOn/SignOn.pro \
+%if %{with qt4}
+install -d build-qt4/lib/SignOn
+cd build-qt4/lib/SignOn
+qmake-qt4 ../../../lib/SignOn/SignOn.pro \
 	CONFIG+=cryptsetup \
-	BUILD_DIR="build-qt5" \
+	BUILD_DIR="build-qt4" \
 	LIBDIR="%{_libdir}" \
 	QMAKE_CXX="%{__cxx}" \
 	QMAKE_CXXFLAGS_RELEASE="%{rpmcxxflags}" \
@@ -203,12 +203,12 @@ cd ..
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%if %{with qt5}
-%{__make} -C build-qt5/lib/SignOn install \
+%if %{with qt4}
+%{__make} -C build-qt4/lib/SignOn install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 %endif
 
-%{__make} -C build-qt4 install \
+%{__make} -C build-qt5 install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 
 # useless symlinks
@@ -279,6 +279,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_docdir}/signon-apidocs-%{version}
 %{_examplesdir}/signon-%{version}
 
+%if %{with qt4}
 %files -n libsignon-qt
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libsignon-qt.so.*.*.*
@@ -298,8 +299,8 @@ rm -rf $RPM_BUILD_ROOT
 %files -n libsignon-qt-apidocs
 %defattr(644,root,root,755)
 %{_docdir}/libsignon-qt-apidocs-%{version}
+%endif
 
-%if %{with qt5}
 %files -n libsignon-qt5
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libsignon-qt5.so.*.*.*
@@ -315,4 +316,3 @@ rm -rf $RPM_BUILD_ROOT
 %files -n libsignon-qt5-static
 %defattr(644,root,root,755)
 %{_libdir}/libsignon-qt5.a
-%endif
