@@ -5,16 +5,15 @@
 Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
 Name:		signon
-Version:	8.56
-Release:	3
+Version:	8.58
+Release:	1
 License:	LGPL v2.1
 Group:		Libraries
-#Source0Download: http://code.google.com/p/accounts-sso/downloads/list
-Source0:	http://accounts-sso.googlecode.com/files/%{name}-%{version}.tar.bz2
-# Source0-md5:	85ac10ab581d84ec2344a42349bc693b
+#Source0Download: https://gitlab.com/accounts-sso/signond/tags?page=14
+Source0:	https://gitlab.com/accounts-sso/signond/repository/archive.tar.gz?ref=VERSION_%{version}
+# Source0-md5:	90c29b033fe78a124ecca044e28a789b
 Patch0:		%{name}-cryptsetup.patch
-Patch1:		%{name}-link.patch
-URL:		http://code.google.com/p/accounts-sso/
+URL:		https://gitlab.com/accounts-sso/signond
 %if %{with qt5}
 BuildRequires:	Qt5Core-devel >= 5
 BuildRequires:	Qt5DBus-devel >= 5
@@ -169,9 +168,8 @@ Static libsignon-qt5 library.
 Statyczna biblioteka libsignon-qt5.
 
 %prep
-%setup -q
+%setup -q -n signond-VERSION_%{version}-aa1bcf3c9218addbdb376a40151b689409046125
 %patch0 -p1
-%patch1 -p1
 
 %build
 install -d build-qt4
@@ -208,11 +206,6 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with qt5}
 %{__make} -C build-qt5/lib/SignOn install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
-
-# separate from qt4 version
-%{__mv} $RPM_BUILD_ROOT%{_libdir}/cmake/{SignOnQt,SignOnQt5}
-%{__mv} $RPM_BUILD_ROOT%{_libdir}/cmake/SignOnQt5/{SignOnQt,SignOnQt5}Config.cmake
-%{__mv} $RPM_BUILD_ROOT%{_libdir}/cmake/SignOnQt5/{SignOnQt,SignOnQt5}ConfigVersion.cmake
 %endif
 
 %{__make} -C build-qt4 install \
@@ -242,6 +235,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
+%doc README.md
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/signond.conf
 %attr(755,root,root) %{_bindir}/signond
 %attr(755,root,root) %{_bindir}/signonpluginprocess
@@ -259,14 +253,16 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libsignon-extension.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libsignon-extension.so.1
+%attr(755,root,root) %{_libdir}/libsignon-plugins.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libsignon-plugins.so.1
 %attr(755,root,root) %{_libdir}/libsignon-plugins-common.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libsignon-plugins-common.so.1
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libsignon-extension.so
+%attr(755,root,root) %{_libdir}/libsignon-plugins.so
 %attr(755,root,root) %{_libdir}/libsignon-plugins-common.so
-%{_libdir}/libsignon-plugins.a
 %{_includedir}/signon-extension
 %{_includedir}/signon-plugins
 %{_includedir}/signond
