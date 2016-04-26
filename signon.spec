@@ -10,7 +10,9 @@ Release:	1
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: https://gitlab.com/accounts-sso/signond/tags?page=14
-Source0:	https://gitlab.com/accounts-sso/signond/repository/archive.tar.gz?ref=VERSION_%{version}
+# TODO: in the future use fake GET arg to force sane filename on df
+#Source0:	https://gitlab.com/accounts-sso/signond/repository/archive.tar.bz2?ref=VERSION_%{version}&fake_out=/%{name}-%{version}.tar.bz2
+Source0:	archive.tar.gz%3Fref=VERSION_%{version}
 # Source0-md5:	90c29b033fe78a124ecca044e28a789b
 Patch0:		%{name}-cryptsetup.patch
 URL:		https://gitlab.com/accounts-sso/signond
