@@ -6,7 +6,7 @@ Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
 Name:		signon
 Version:	8.58
-Release:	1
+Release:	2
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: https://gitlab.com/accounts-sso/signond/tags?page=14
@@ -126,6 +126,9 @@ Statyczna biblioteka libsignon-qt.
 Summary:	API documentation for Single Sign On daemon Qt client library
 Summary(pl.UTF-8):	Dokumentacja API biblioteki klienckiej Qt demona Single Sign On
 Group:		Documentation
+%if "%{_rpmversion}" >= "5"
+BuildArch:	noarch
+%endif
 
 %description -n libsignon-qt-apidocs
 API documentation for Single Sign On daemon Qt client library.
