@@ -1,27 +1,15 @@
-#
-# Conditional build:
-%bcond_without	qt4	# qt4-based libsignon-qt binding
-
 Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
 Name:		signon
-Version:	8.58
-Release:	2
+Version:	8.59
+Release:	1
 License:	LGPL v2.1
 Group:		Libraries
-#Source0Download: https://gitlab.com/accounts-sso/signond/tags?page=14
-# TODO: in the future use fake GET arg to force sane filename on df
-#Source0:	https://gitlab.com/accounts-sso/signond/repository/archive.tar.bz2?ref=VERSION_%{version}&fake_out=/%{name}-%{version}.tar.bz2
-Source0:	archive.tar.gz%3Fref=VERSION_%{version}
-# Source0-md5:	90c29b033fe78a124ecca044e28a789b
+#Source0Download: https://gitlab.com/accounts-sso/signond/tags?sort=updated_desc
+Source0:	https://gitlab.com/accounts-sso/signond/repository/archive.tar.bz2?ref=VERSION_%{version}&fake_out=/%{name}-%{version}.tar.bz2
+# Source0-md5:	e08708ad4ca14554c361b1cd270c977a
 Patch0:		%{name}-cryptsetup.patch
 URL:		https://gitlab.com/accounts-sso/signond
-%if %{with qt4}
-BuildRequires:	QtCore-devel >= 4
-BuildRequires:	QtDBus-devel >= 4
-BuildRequires:	qt4-build >= 4
-BuildRequires:	qt4-qmake >= 4
-%endif
 BuildRequires:	Qt5Core-devel >= 5
 BuildRequires:	Qt5DBus-devel >= 5
 BuildRequires:	Qt5Gui-devel >= 5
@@ -64,7 +52,7 @@ Requires:	Qt5Core-devel >= 5
 Requires:	Qt5DBus-devel >= 5
 Requires:	Qt5Sql-devel >= 5
 # for signon-plugins.pc
-Requires:	libsignon-qt-devel = %{version}-%{release}
+Requires:	libsignon-qt5-devel = %{version}-%{release}
 
 %description devel
 Development files for Single Sign On libraries.
@@ -85,42 +73,6 @@ API documentation for Single Sign On daemon and libraries.
 
 %description apidocs -l pl.UTF-8
 Dokumentacja API demona i bibliotek Single Sign On.
-
-%package -n libsignon-qt
-Summary:	Client library for the Single Sign On daemon - Qt 4 bindings
-Summary(pl.UTF-8):	Biblioteka kliencka demona Single Sign On - wiązania Qt 4
-Group:		Libraries
-
-%description -n libsignon-qt
-Client library for the Single Sign On daemon - Qt 4 bindings.
-
-%description -n libsignon-qt -l pl.UTF-8
-Biblioteka kliencka demona Single Sign On - wiązania Qt 4.
-
-%package -n libsignon-qt-devel
-Summary:	Header files for Single Sign On daemon Qt 4 client library
-Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki klienckiej Qt 4 demona Single Sign On
-Group:		Development/Libraries
-Requires:	QtCore-devel >= 4
-Requires:	libsignon-qt = %{version}-%{release}
-
-%description -n libsignon-qt-devel
-Header files for Single Sign On daemon Qt 4 client library.
-
-%description -n libsignon-qt-devel -l pl.UTF-8
-Pliki nagłówkowe biblioteki klienckiej Qt 4 demona Single Sign On.
-
-%package -n libsignon-qt-static
-Summary:	Static libsignon-qt library
-Summary(pl.UTF-8):	Statyczna biblioteka libsignon-qt
-Group:		Development/Libraries
-Requires:	libsignon-qt-devel = %{version}-%{release}
-
-%description -n libsignon-qt-static
-Static libsignon-qt library.
-
-%description -n libsignon-qt-static -l pl.UTF-8
-Statyczna biblioteka libsignon-qt.
 
 %package -n libsignon-qt-apidocs
 Summary:	API documentation for Single Sign On daemon Qt client library
@@ -173,7 +125,7 @@ Static libsignon-qt5 library.
 Statyczna biblioteka libsignon-qt5.
 
 %prep
-%setup -q -n signond-VERSION_%{version}-aa1bcf3c9218addbdb376a40151b689409046125
+%setup -q -n signond-VERSION_%{version}-14f058c36208a551c80d0e98d76164fb87b2b8af
 %patch0 -p1
 
 %build
@@ -190,28 +142,8 @@ qmake-qt5 ../signon.pro \
 %{__make}
 cd ..
 
-%if %{with qt4}
-install -d build-qt4/lib/SignOn
-cd build-qt4/lib/SignOn
-qmake-qt4 ../../../lib/SignOn/SignOn.pro \
-	CONFIG+=cryptsetup \
-	BUILD_DIR="build-qt4" \
-	LIBDIR="%{_libdir}" \
-	QMAKE_CXX="%{__cxx}" \
-	QMAKE_CXXFLAGS_RELEASE="%{rpmcxxflags}" \
-	QMAKE_LFLAGS_RELEASE="%{rpmldflags}"
-
-%{__make}
-cd ..
-%endif
-
 %install
 rm -rf $RPM_BUILD_ROOT
-
-%if %{with qt4}
-%{__make} -C build-qt4/lib/SignOn install \
-	INSTALL_ROOT=$RPM_BUILD_ROOT
-%endif
 
 %{__make} -C build-qt5 install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
@@ -231,9 +163,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %post	libs -p /sbin/ldconfig
 %postun	libs -p /sbin/ldconfig
-
-%post	-n libsignon-qt -p /sbin/ldconfig
-%postun	-n libsignon-qt -p /sbin/ldconfig
 
 %post	-n libsignon-qt5 -p /sbin/ldconfig
 %postun	-n libsignon-qt5 -p /sbin/ldconfig
@@ -284,27 +213,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_docdir}/signon-apidocs-%{version}
 %{_examplesdir}/signon-%{version}
 
-%if %{with qt4}
-%files -n libsignon-qt
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libsignon-qt.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libsignon-qt.so.1
-
-%files -n libsignon-qt-devel
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libsignon-qt.so
-%{_includedir}/signon-qt
-%{_pkgconfigdir}/libsignon-qt.pc
-%{_libdir}/cmake/SignOnQt
-
-%files -n libsignon-qt-static
-%defattr(644,root,root,755)
-%{_libdir}/libsignon-qt.a
-
 %files -n libsignon-qt-apidocs
 %defattr(644,root,root,755)
 %{_docdir}/libsignon-qt-apidocs-%{version}
-%endif
 
 %files -n libsignon-qt5
 %defattr(644,root,root,755)
