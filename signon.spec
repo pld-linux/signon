@@ -1,8 +1,12 @@
+#
+# Conditional build:
+%bcond_with	cryptsetup		# cryptsetup support
+#
 Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
 Name:		signon
 Version:	8.59
-Release:	2
+Release:	3
 License:	LGPL v2.1
 Group:		Libraries
 #Source0Download: https://gitlab.com/accounts-sso/signond/tags?sort=updated_desc
@@ -17,7 +21,7 @@ BuildRequires:	Qt5Network-devel >= 5
 BuildRequires:	Qt5Sql-devel >= 5
 BuildRequires:	Qt5Test-devel >= 5
 BuildRequires:	Qt5Xml-devel >= 5
-BuildRequires:	cryptsetup-devel
+%{?with_cryptsetup:BuildRequires:	cryptsetup-devel}
 BuildRequires:	doxygen
 BuildRequires:	libproxy-devel
 BuildRequires:	pkgconfig
@@ -132,7 +136,7 @@ Statyczna biblioteka libsignon-qt5.
 install -d build-qt5
 cd build-qt5
 qmake-qt5 ../signon.pro \
-	CONFIG+=cryptsetup \
+	%{?with_cryptsetup:CONFIG+=cryptsetup} \
 	BUILD_DIR="build-qt5" \
 	LIBDIR="%{_libdir}" \
 	QMAKE_CXX="%{__cxx}" \
@@ -178,8 +182,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/signon/libpasswordplugin.so
 %attr(755,root,root) %{_libdir}/signon/libssotestplugin.so
 %attr(755,root,root) %{_libdir}/signon/libssotest2plugin.so
+%if %{with cryptsetup}
 %dir %{_libdir}/signon/extensions
 %attr(755,root,root) %{_libdir}/signon/extensions/libcryptsetup.so
+%endif
 %{_datadir}/dbus-1/services/com.google.code.AccountsSSO.SingleSignOn.service
 %{_datadir}/dbus-1/services/com.nokia.SingleSignOn.Backup.service
 
