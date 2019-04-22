@@ -5,13 +5,16 @@
 Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
 Name:		signon
-Version:	8.59
-Release:	3
+Version:	8.60
+Release:	1
 License:	LGPL v2.1
 Group:		Libraries
-#Source0Download: https://gitlab.com/accounts-sso/signond/tags?sort=updated_desc
-Source0:	https://gitlab.com/accounts-sso/signond/repository/archive.tar.bz2?ref=VERSION_%{version}&fake_out=/%{name}-%{version}.tar.bz2
-# Source0-md5:	e08708ad4ca14554c361b1cd270c977a
+#Source0Download: https://gitlab.com/accounts-sso/signond/tags
+Source0:	https://gitlab.com/accounts-sso/signond/-/archive/VERSION_%{version}/signond-VERSION_%{version}.tar.bz2
+# Source0-md5:	2b3112b725348e5e75abf7288692976c
+# submodule
+Source1:	https://gitlab.com/accounts-sso/signon-dbus-specification/-/archive/67487954653006ebd0743188342df65342dc8f9b/signon-dbus-specification-67487954653006ebd0743188342df65342dc8f9b.tar.bz2
+# Source1-md5:	21f2a3bf51a6c7eb6f74a2d3c776fcb9
 Patch0:		%{name}-cryptsetup.patch
 URL:		https://gitlab.com/accounts-sso/signond
 BuildRequires:	Qt5Core-devel >= 5
@@ -24,9 +27,11 @@ BuildRequires:	Qt5Xml-devel >= 5
 %{?with_cryptsetup:BuildRequires:	cryptsetup-devel}
 BuildRequires:	doxygen
 BuildRequires:	libproxy-devel
+BuildRequires:	libstdc++-devel >= 6:4.7
 BuildRequires:	pkgconfig
 BuildRequires:	qt5-build >= 5
 BuildRequires:	qt5-qmake >= 5
+BuildRequires:	tar >= 1:1.22
 Requires:	%{name}-libs = %{version}-%{release}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -129,8 +134,13 @@ Static libsignon-qt5 library.
 Statyczna biblioteka libsignon-qt5.
 
 %prep
-%setup -q -n signond-VERSION_%{version}-14f058c36208a551c80d0e98d76164fb87b2b8af
+%setup -q -n signond-VERSION_%{version}
+tar xf %{SOURCE1} -C lib/signond/interfaces --strip-components 1
 %patch0 -p1
+
+# disable docs in qch format (signon.qch)
+%{__sed} -i -e '/GENERATE_QHP/ s/YES/NO/' doc/doxy.conf
+%{__sed} -i -e '/doc\/qch/d' doc/doc.pri
 
 %build
 install -d build-qt5
