@@ -73,9 +73,7 @@ Pliki programistyczne bibliotek Single Sign On.
 Summary:	API documentation for Single Sign On daemon and libraries
 Summary(pl.UTF-8):	Dokumentacja API demona i bibliotek Single Sign On
 Group:		Documentation
-%if "%{_rpmversion}" >= "5"
 BuildArch:	noarch
-%endif
 
 %description apidocs
 API documentation for Single Sign On daemon and libraries.
@@ -87,9 +85,7 @@ Dokumentacja API demona i bibliotek Single Sign On.
 Summary:	API documentation for Single Sign On daemon Qt client library
 Summary(pl.UTF-8):	Dokumentacja API biblioteki klienckiej Qt demona Single Sign On
 Group:		Documentation
-%if "%{_rpmversion}" >= "5"
 BuildArch:	noarch
-%endif
 
 %description -n libsignon-qt-apidocs
 API documentation for Single Sign On daemon Qt client library.
