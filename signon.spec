@@ -10,7 +10,7 @@ Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
 Name:		signon
 Version:	8.62
-Release:	1.%{snapshot}
+Release:	2.%{snapshot}
 License:	LGPL v2.1
 Group:		Libraries
 # Original version: https://gitlab.com/accounts-sso/signond
@@ -188,7 +188,7 @@ Statyczna biblioteka libsignon-qt6.
 %prep
 %setup -q -n signond-qt6
 tar xf %{SOURCE1} -C lib/signond/interfaces --strip-components 1
-%patch0 -p1
+%patch -P 0 -p1
 
 # disable docs in qch format (signon.qch)
 %{__sed} -i -e '/GENERATE_QHP/ s/YES/NO/' doc/doxy.conf
@@ -248,6 +248,8 @@ install -d $RPM_BUILD_ROOT%{_docdir}/signon-apidocs-%{version} \
 %{__mv} $RPM_BUILD_ROOT%{_docdir}/signon-plugins/html $RPM_BUILD_ROOT%{_docdir}/signon-apidocs-%{version}/signon-plugins
 %{__mv} $RPM_BUILD_ROOT%{_docdir}/signon-plugins-dev/example $RPM_BUILD_ROOT%{_examplesdir}/signon-%{version}/signon-plugins
 
+install -d $RPM_BUILD_ROOT%{_libdir}/%{name}/extensions
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -286,6 +288,7 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %{_libdir}/libsignon-plugins.so.1
 %attr(755,root,root) %{_libdir}/libsignon-plugins-common.so.*.*.*
 %ghost %{_libdir}/libsignon-plugins-common.so.1
+%dir %{_libdir}/%{name}/extensions
 
 %files devel
 %defattr(644,root,root,755)
