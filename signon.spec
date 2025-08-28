@@ -35,15 +35,15 @@ BuildRequires:	qt5-build >= 5
 BuildRequires:	qt5-qmake >= 5
 %endif
 %if %{with qt6}
-BuildRequires:	Qt6Core-devel >= 5
-BuildRequires:	Qt6DBus-devel >= 5
-BuildRequires:	Qt6Gui-devel >= 5
-BuildRequires:	Qt6Network-devel >= 5
-BuildRequires:	Qt6Sql-devel >= 5
-BuildRequires:	Qt6Test-devel >= 5
-BuildRequires:	Qt6Xml-devel >= 5
-BuildRequires:	qt6-build >= 5
-BuildRequires:	qt6-qmake >= 5
+BuildRequires:	Qt6Core-devel >= 6
+BuildRequires:	Qt6DBus-devel >= 6
+BuildRequires:	Qt6Gui-devel >= 6
+BuildRequires:	Qt6Network-devel >= 6
+BuildRequires:	Qt6Sql-devel >= 6
+BuildRequires:	Qt6Test-devel >= 6
+BuildRequires:	Qt6Xml-devel >= 6
+BuildRequires:	qt6-build >= 6
+BuildRequires:	qt6-qmake >= 6
 %endif
 %{?with_cryptsetup:BuildRequires:	cryptsetup-devel}
 BuildRequires:	doxygen
@@ -184,25 +184,22 @@ Static libsignon-qt6 library.
 %description -n libsignon-qt6-static -l pl.UTF-8
 Statyczna biblioteka libsignon-qt6.
 
-
 %prep
 %setup -q -n signond-qt6
 tar xf %{SOURCE1} -C lib/signond/interfaces --strip-components 1
 %patch -P 0 -p1
 
 # disable docs in qch format (signon.qch)
-%{__sed} -i -e '/GENERATE_QHP/ s/YES/NO/' doc/doxy.conf
-%{__sed} -i -e '/doc\/qch/d' doc/doc.pri
-
-mkdir qt5
-mv $(ls -1 |grep -vE '^qt5$') .* qt5/
-cp -a qt5 qt6
+%{__sed} -i -e '/GENERATE_QHP/ s/YES/NO/' doc/doxy.conf lib/SignOn/doc/doxy.conf lib/plugins/doc/doxy.conf
+%{__sed} -i -e '/doc\/qch/d' doc/doc.pri lib/SignOn/doc/doc.pri lib/plugins/doc/doc.pri
 
 %build
 %if %{with qt5}
-cd qt5
-qmake-qt5 signon.pro \
+install -d build-qt5
+cd build-qt5
+qmake-qt5 ../signon.pro \
 	%{?with_cryptsetup:CONFIG+=cryptsetup} \
+	BUILD_DIR="build-qt5" \
 	LIBDIR="%{_libdir}" \
 	QMAKE_CXX="%{__cxx}" \
 	QMAKE_CXXFLAGS_RELEASE="%{rpmcxxflags}" \
@@ -213,9 +210,11 @@ cd ..
 %endif
 
 %if %{with qt6}
-cd qt6
-qmake-qt6 signon.pro \
+install -d build-qt6
+cd build-qt6
+qmake-qt6 ../signon.pro \
 	%{?with_cryptsetup:CONFIG+=cryptsetup} \
+	BUILD_DIR="build-qt6" \
 	LIBDIR="%{_libdir}" \
 	QMAKE_CXX="%{__cxx}" \
 	QMAKE_CXXFLAGS_RELEASE="%{rpmcxxflags}" \
@@ -229,17 +228,17 @@ cd ..
 rm -rf $RPM_BUILD_ROOT
 
 %if %{with qt5}
-%{__make} -C qt5 install \
+%{__make} -C build-qt5 install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 %endif
 
 %if %{with qt6}
-%{__make} -C qt6 install \
+%{__make} -C build-qt6 install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 %endif
 
 # useless symlinks
-%{__rm} -f $RPM_BUILD_ROOT%{_libdir}/lib*.so.1.?
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/lib*.so.1.?
 
 install -d $RPM_BUILD_ROOT%{_docdir}/signon-apidocs-%{version} \
 	$RPM_BUILD_ROOT%{_examplesdir}/signon-%{version}
@@ -264,7 +263,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc qt5/README.md
+%doc README.md
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/signond.conf
 %attr(755,root,root) %{_bindir}/signond
 %attr(755,root,root) %{_bindir}/signonpluginprocess
