@@ -76,11 +76,19 @@ Summary:	Development files for Single Sign On libraries
 Summary(pl.UTF-8):	Pliki programistyczne bibliotek Single Sign On
 Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
+%if %{with qt6}
+Requires:	Qt6Core-devel >= 6
+Requires:	Qt6DBus-devel >= 6
+Requires:	Qt6Sql-devel >= 6
+# for signon-plugins.pc
+Requires:	libsignon-qt6-devel = %{version}-%{release}
+%else
 Requires:	Qt5Core-devel >= 5
 Requires:	Qt5DBus-devel >= 5
 Requires:	Qt5Sql-devel >= 5
 # for signon-plugins.pc
 Requires:	libsignon-qt5-devel = %{version}-%{release}
+%endif
 
 %description devel
 Development files for Single Sign On libraries.
