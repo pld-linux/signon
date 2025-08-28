@@ -1,6 +1,6 @@
 #
 # Conditional build:
-%bcond_with	cryptsetup		# cryptsetup support
+%bcond_with	cryptsetup		# cryptsetup support (broken since 8.59/qt5)
 %bcond_without	qt5			# qt5 version
 %bcond_without	qt6			# qt6 version
 
@@ -10,7 +10,8 @@ Summary:	Single Sign On libraries and daemon
 Summary(pl.UTF-8):	Biblioteki i demon Single Sign On
 Name:		signon
 Version:	8.62
-Release:	2.%{snapshot}
+%define	rel	2
+Release:	2.%{snapshot}.%{rel}
 License:	LGPL v2.1
 Group:		Libraries
 # Original version: https://gitlab.com/accounts-sso/signond
